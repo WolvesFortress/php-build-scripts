@@ -23,8 +23,10 @@ EXT_XDEBUG_VERSION="3.0.4"
 EXT_IGBINARY_VERSION="3.2.4"
 EXT_CRYPTO_VERSION="0.3.2"
 EXT_RECURSIONGUARD_VERSION="0.1.0"
+EXT_ZSTD_VERSION="0.10.0"
 EXT_LIBDEFLATE_VERSION="be5367c81c61c612271377cdae9ffacac0f6e53a"
 EXT_MORTON_VERSION="0.1.2"
+EXT_MCGENERATOR_VERSION="5babb317c8385ef25bc83abda0c5524576ef5497"
 
 function write_out {
 	echo "[$1] $2"
@@ -630,7 +632,7 @@ function build_libjpeg {
 	fi
 	#libjpeg
 	echo -n "[libjpeg] downloading $LIBJPEG_VERSION..."
-	download_file "http://ijg.org/files/jpegsrc.v$LIBJPEG_VERSION.tar.gz" | tar -zx >> "$DIR/install.log" 2>&1
+	download_file "https://ijg.org/files/jpegsrc.v$LIBJPEG_VERSION.tar.gz" | tar -zx >> "$DIR/install.log" 2>&1
 	mv jpeg-$LIBJPEG_VERSION libjpeg
 	echo -n " checking..."
 	cd libjpeg
@@ -828,6 +830,9 @@ get_github_extension "igbinary" "$EXT_IGBINARY_VERSION" "igbinary" "igbinary"
 
 get_github_extension "recursionguard" "$EXT_RECURSIONGUARD_VERSION" "pmmp" "ext-recursionguard"
 
+#get_github_extension "zstd" "$EXT_ZSTD_VERSION" "kjdev" "php-ext-zstd"
+get_pecl_extension "zstd" "$EXT_ZSTD_VERSION"
+
 echo -n "  crypto: downloading $EXT_CRYPTO_VERSION..."
 git clone https://github.com/bukka/php-crypto.git "$BUILD_DIR/php/ext/crypto" >> "$DIR/install.log" 2>&1
 cd "$BUILD_DIR/php/ext/crypto"
@@ -843,6 +848,8 @@ get_github_extension "chunkutils2" "$EXT_CHUNKUTILS2_VERSION" "pmmp" "ext-chunku
 get_github_extension "libdeflate" "$EXT_LIBDEFLATE_VERSION" "pmmp" "ext-libdeflate"
 
 get_github_extension "morton" "$EXT_MORTON_VERSION" "pmmp" "ext-morton"
+
+get_github_extension "mcgenerator" "$EXT_MCGENERATOR_VERSION" "NetherGamesMC" "extnoise"
 
 echo -n "[PHP]"
 
@@ -970,7 +977,9 @@ $HAVE_MYSQLI \
 --enable-ftp \
 --enable-opcache=$HAVE_OPCACHE \
 --enable-opcache-jit=$HAVE_OPCACHE \
+--enable-zstd \
 --enable-igbinary \
+--enable-mcgenerator \
 --with-crypto \
 --enable-recursionguard \
 $HAVE_VALGRIND \
@@ -1043,6 +1052,7 @@ echo "error_reporting=-1" >> "$DIR/bin/php7/bin/php.ini"
 echo "display_errors=1" >> "$DIR/bin/php7/bin/php.ini"
 echo "display_startup_errors=1" >> "$DIR/bin/php7/bin/php.ini"
 echo "recursionguard.enabled=0 ;disabled due to minor performance impact, only enable this if you need it for debugging" >> "$DIR/bin/php7/bin/php.ini"
+echo "extension_dir=./bin/php7/lib/php/extensions/no-debug-zts-20200930" >> "$DIR/bin/php7/bin/php.ini"
 
 if [ "$HAVE_OPCACHE" == "yes" ]; then
 	echo "zend_extension=opcache.so" >> "$DIR/bin/php7/bin/php.ini"
