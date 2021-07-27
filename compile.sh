@@ -60,6 +60,7 @@ if [ "$(uname -s)" == "Darwin" ]; then
 	type glibtool >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install GNU libtool"; ((ERRORS++)); }
 	export LIBTOOL=glibtool
 	export LIBTOOLIZE=glibtoolize
+	[[ $(bison --version) == "bison (GNU Bison) 3."* ]] || { echo >&2 "[ERROR] MacOS bundled bison is too old. Install bison using Homebrew and update your PATH variable according to its instructions before running this script."; ((ERRORS++)); }
 else
 	type libtool >> "$DIR/install.log" 2>&1 || { echo >&2 "[ERROR] Please install \"libtool\" or \"libtool-bin\""; ((ERRORS++)); }
 	export LIBTOOL=libtool
@@ -179,6 +180,7 @@ done
 GMP_ABI=""
 TOOLCHAIN_PREFIX=""
 OPENSSL_TARGET=""
+CMAKE_GLOBAL_EXTRA_FLAGS=""
 
 if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 	export CROSS_COMPILER="$PATH"
@@ -225,7 +227,11 @@ if [ "$IS_CROSSCOMPILE" == "yes" ]; then
 	fi
 else
 	if [[ "$COMPILE_TARGET" == "" ]] && [[ "$(uname -s)" == "Darwin" ]]; then
-		COMPILE_TARGET="mac"
+		if [ "$(uname -m)" == "arm64" ]; then
+			COMPILE_TARGET="mac-arm64"
+		else
+			COMPILE_TARGET="mac-x86-64"
+		fi
 	fi
 	if [[ "$COMPILE_TARGET" == "linux" ]] || [[ "$COMPILE_TARGET" == "linux64" ]]; then
 		[ -z "$march" ] && march=x86-64;
@@ -234,7 +240,7 @@ else
 		GMP_ABI="64"
 		OPENSSL_TARGET="linux-x86_64"
 		echo "[INFO] Compiling for Linux x86_64"
-	elif [[ "$COMPILE_TARGET" == "mac" ]] || [[ "$COMPILE_TARGET" == "mac64" ]]; then
+	elif [[ "$COMPILE_TARGET" == "mac-x86-64" ]]; then
 		[ -z "$march" ] && march=core2;
 		[ -z "$mtune" ] && mtune=generic;
 		[ -z "$MACOSX_DEPLOYMENT_TARGET" ] && export MACOSX_DEPLOYMENT_TARGET=10.9;
@@ -248,8 +254,25 @@ else
 		ARCHFLAGS="-Wno-error=unused-command-line-argument-hard-error-in-future"
 		GMP_ABI="64"
 		OPENSSL_TARGET="darwin64-x86_64-cc"
-		echo "[INFO] Compiling for Intel MacOS x86_64"
+		CMAKE_GLOBAL_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=x86_64"
+		echo "[INFO] Compiling for MacOS x86_64"
 	#TODO: add aarch64 platforms (ios, android, rpi)
+	elif [[ "$COMPILE_TARGET" == "mac-arm64" ]]; then
+		[ -z "$MACOSX_DEPLOYMENT_TARGET" ] && export MACOSX_DEPLOYMENT_TARGET=11.0;
+		CFLAGS="$CFLAGS -arch arm64 -fomit-frame-pointer -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+		LDFLAGS="$LDFLAGS -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+		if [ "$DO_STATIC" == "no" ]; then
+			LDFLAGS="$LDFLAGS -Wl,-rpath,@loader_path/../lib";
+			export DYLD_LIBRARY_PATH="@loader_path/../lib"
+		fi
+		CFLAGS="$CFLAGS -Qunused-arguments"
+		GMP_ABI="64"
+		OPENSSL_TARGET="darwin64-arm64-cc"
+		CMAKE_GLOBAL_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
+		echo "[INFO] Compiling for MacOS M1"
+	elif [[ "$COMPILE_TARGET" != "" ]]; then
+		echo "Please supply a proper platform [mac-arm64 mac-x86-64 linux linux64] to compile for"
+		exit 1
 	elif [ -z "$CFLAGS" ]; then
 		if [ `getconf LONG_BIT` == "64" ]; then
 			echo "[INFO] Compiling for current machine using 64-bit"
@@ -566,6 +589,7 @@ function build_leveldb {
 		-DLEVELDB_ZSTD=OFF \
 		-DLEVELDB_TCMALLOC=OFF \
 		-DCMAKE_BUILD_TYPE=Release \
+		$CMAKE_GLOBAL_EXTRA_FLAGS \
 		$EXTRA_FLAGS \
 		>> "$DIR/install.log" 2>&1
 	echo -n " compiling..."
@@ -671,6 +695,7 @@ function build_libzip {
 		-DCMAKE_INSTALL_PREFIX="$DIR/bin/php7" \
 		-DCMAKE_INSTALL_LIBDIR=lib \
 		$CMAKE_LIBZIP_EXTRA_FLAGS \
+		$CMAKE_GLOBAL_EXTRA_FLAGS \
 		-DBUILD_TOOLS=OFF \
 		-DBUILD_REGRESS=OFF \
 		-DBUILD_EXAMPLES=OFF \
