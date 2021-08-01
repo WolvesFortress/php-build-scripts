@@ -3,7 +3,9 @@
 REM For future users: This file MUST have CRLF line endings. If it doesn't, lots of inexplicable undesirable strange behaviour will result.
 REM Also: Don't modify this version with sed, or it will screw up your line endings.
 set PHP_MAJOR_VER=8.0
-set PHP_VER=%PHP_MAJOR_VER%.8
+set PHP_VER=%PHP_MAJOR_VER%.9
+set PHP_GIT_REV=php-%PHP_VER%
+set PHP_DISPLAY_VER=%PHP_VER%
 set PHP_SDK_VER=2.2.0
 set PATH=C:\Program Files\7-Zip;C:\Program Files (x86)\GnuWin32\bin;%PATH%
 set VC_VER=vs16
@@ -21,12 +23,11 @@ set PTHREAD_W32_VER=3.0.0
 set LEVELDB_MCPE_VER=623f633d3a588f9e478b95a12dc794d25968234f
 set LIBDEFLATE_VER=448e3f3b042219bccb0080e393ba3eb68c2091d5
 
-set PHP_PTHREADS_VER=2784d4d17dc53be9e2732a5c11dae199b4a57c93
+set PHP_PTHREADS_VER=26ddd23b509f654b2a31b92289bbc631aa65d91c
 set PHP_YAML_VER=2.2.1
 set PHP_CHUNKUTILS2_VER=0.2.0
-set PHP_IGBINARY_VER=3.2.3
-REM this is 1.2.9 but tags with a "v" prefix are a pain in the ass
-set PHP_LEVELDB_VER=98f2fc73d41e25ce74c59dd49c43380be1cbcf09
+set PHP_IGBINARY_VER=3.2.4
+set PHP_LEVELDB_VER=317fdcd8415e1566fc2835ce2bdb8e19b890f9f3
 set PHP_CRYPTO_VER=0.3.2
 set PHP_RECURSIONGUARD_VER=0.1.0
 set PHP_MORTON_VER=0.1.2
@@ -59,7 +60,11 @@ if "%PHP_DEBUG_BUILD%"=="0" (
 )
 
 if "%SOURCES_PATH%"=="" (
-	set SOURCES_PATH=C:\pocketmine-php-sdk
+	if "%PHP_DEBUG_BUILD%"=="0" (
+		set SOURCES_PATH=C:\pocketmine-php-%PHP_DISPLAY_VER%-release
+	) else (
+		set SOURCES_PATH=C:\pocketmine-php-%PHP_DISPLAY_VER%-debug
+	)
 )
 call :pm-echo "Using path %SOURCES_PATH% for build sources"
 
@@ -93,8 +98,8 @@ cd /D "%SOURCES_PATH%"
 call bin\phpsdk_setvars.bat >>"%log_file%" 2>&1
 
 call :pm-echo "Downloading PHP source version %PHP_VER%..."
-call :get-zip https://github.com/php/php-src/archive/php-%PHP_VER%.zip >>"%log_file%" 2>&1 || call :pm-fatal-error "Failed to download PHP source"
-move php-src-php-%PHP_VER% php-src >>"%log_file%" 2>&1 || call :pm-fatal-error "Failed to move PHP source to target directory"
+call :get-zip https://github.com/php/php-src/archive/%PHP_GIT_REV%.zip >>"%log_file%" 2>&1 || call :pm-fatal-error "Failed to download PHP source"
+move php-src-%PHP_GIT_REV% php-src >>"%log_file%" 2>&1 || call :pm-fatal-error "Failed to move PHP source to target directory"
 
 set DEPS_DIR_NAME=deps
 set DEPS_DIR="%SOURCES_PATH%\%DEPS_DIR_NAME%"
@@ -274,16 +279,16 @@ nmake snap >>"%log_file%" 2>&1 || call :pm-fatal-error "Error assembling artifac
 
 call :pm-echo "Removing unneeded dependency DLLs..."
 REM remove ICU DLLs copied unnecessarily by nmake snap - this needs to be removed if we ever have ext/intl as a dependency
-del /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_VER%\icu*.dll" 2>&1
+del /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_DISPLAY_VER%\icu*.dll" 2>&1
 REM remove enchant dependencies which are unnecessarily copied - this needs to be removed if we ever have ext/enchant as a dependency
-del /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_VER%\glib-*.dll" 2>&1
-del /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_VER%\gmodule-*.dll" 2>&1
-rmdir /s /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_VER%\lib\enchant\" 2>&1
+del /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_DISPLAY_VER%\glib-*.dll" 2>&1
+del /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_DISPLAY_VER%\gmodule-*.dll" 2>&1
+rmdir /s /q "%SOURCES_PATH%\php-src\%ARCH%\Release_TS\php-%PHP_DISPLAY_VER%\lib\enchant\" 2>&1
 
 call :pm-echo "Copying artifacts..."
 cd /D "%outpath%"
 mkdir bin
-move "%SOURCES_PATH%\php-src\%ARCH%\%OUT_PATH_REL%_TS\php-%PHP_VER%" bin\php
+move "%SOURCES_PATH%\php-src\%ARCH%\%OUT_PATH_REL%_TS\php-%PHP_DISPLAY_VER%" bin\php
 cd /D bin\php
 
 set php_ini=php.ini
@@ -339,7 +344,7 @@ bin\php\php.exe --version >>"%log_file%" 2>&1 || call :pm-fatal-error "PHP build
 bin\php\php.exe -m >>"%log_file%" 2>&1
 
 call :pm-echo "Packaging build..."
-set package_filename=php-%PHP_VER%-%VC_VER%-%ARCH%.zip
+set package_filename=php-%PHP_DISPLAY_VER%-%VC_VER%-%ARCH%.zip
 if exist %package_filename% rm %package_filename%
 7z a -bd %package_filename% bin vc_redist.x64.exe >nul || call :pm-fatal-error "Failed to package the build"
 
