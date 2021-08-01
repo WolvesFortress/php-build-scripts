@@ -34,7 +34,7 @@ jobs:
         if: steps.build-cache.outputs.cache-hit != 'true'
         uses: marvinpinto/action-automatic-releases@v1.1.1
         with:
-          automatic_release_tag: "${{ matrix.php }}"
+          automatic_release_tag: "8.0"
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           title: "PHP ${{ matrix.php }} for Linux"
           files: PHP_Linux.tar.gz
