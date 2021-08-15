@@ -26,7 +26,7 @@ EXT_RECURSIONGUARD_VERSION="0.1.0"
 EXT_ZSTD_VERSION="0.10.0"
 EXT_LIBDEFLATE_VERSION="be5367c81c61c612271377cdae9ffacac0f6e53a"
 EXT_MORTON_VERSION="0.1.2"
-EXT_MCGENERATOR_VERSION="d13744f96ab36decb6ddd83bfa1d3e45c544b202"
+EXT_VANILLAGENERATOR_VERSION="166790fe2bae990661d7e3e05e557e969236b188"
 
 function write_out {
 	echo "[$1] $2"
@@ -849,7 +849,7 @@ get_github_extension "libdeflate" "$EXT_LIBDEFLATE_VERSION" "pmmp" "ext-libdefla
 
 get_github_extension "morton" "$EXT_MORTON_VERSION" "pmmp" "ext-morton"
 
-get_github_extension "mcgenerator" "$EXT_MCGENERATOR_VERSION" "NetherGamesMC" "extnoise"
+get_github_extension "vanillagenerator" "$EXT_VANILLAGENERATOR_VERSION" "NetherGamesMC" "extnoise"
 
 echo -n "[PHP]"
 
