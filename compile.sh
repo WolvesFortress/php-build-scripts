@@ -979,7 +979,7 @@ $HAVE_MYSQLI \
 --enable-opcache-jit=$HAVE_OPCACHE \
 --enable-zstd \
 --enable-igbinary \
---enable-mcgenerator \
+--enable-vanillagenerator \
 --with-crypto \
 --enable-recursionguard \
 $HAVE_VALGRIND \
