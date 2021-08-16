@@ -33,6 +33,8 @@ set PHP_RECURSIONGUARD_VER=0.1.0
 set PHP_MORTON_VER=0.1.2
 set PHP_LIBDEFLATE_VER=be5367c81c61c612271377cdae9ffacac0f6e53a
 
+set PHP_VANILLAGENERATOR_VER=166790fe2bae990661d7e3e05e557e969236b188
+
 set script_path=%~dp0
 set log_file=%script_path%compile.log
 echo.>"%log_file%"
@@ -199,6 +201,7 @@ call :get-extension-zip-from-github "leveldb"               "%PHP_LEVELDB_VER%" 
 call :get-extension-zip-from-github "recursionguard"        "%PHP_RECURSIONGUARD_VER%"        "pmmp"     "ext-recursionguard"      || exit 1
 call :get-extension-zip-from-github "morton"                "%PHP_MORTON_VER%"                "pmmp"     "ext-morton"              || exit 1
 call :get-extension-zip-from-github "libdeflate"            "%PHP_LIBDEFLATE_VER%"            "pmmp"     "ext-libdeflate"          || exit 1
+call :get-extension-zip-from-github "vanillagenerator"      "%PHP_LIBDEFLATE_VER%"       "NetherGamesMC" "ext-vanillagenerator"    || exit 1
 
 call :pm-echo " - crypto: downloading %PHP_CRYPTO_VER%..."
 git clone https://github.com/bukka/php-crypto.git crypto >>"%log_file%" 2>&1 || exit 1
@@ -240,6 +243,7 @@ call configure^
  --enable-opcache^
  --enable-opcache-jit^
  --enable-phar^
+ --enable-vanillagenerator^
  --enable-recursionguard=shared^
  --enable-sockets^
  --enable-tokenizer^
