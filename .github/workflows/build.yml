@@ -3,7 +3,7 @@ name: Build
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build-linux:
+  build:
     runs-on: ubuntu-18.04
     if: contains(github.event.head_commit.message, '[ci skip]') != 'true'
     steps:
@@ -44,18 +44,3 @@ jobs:
           title: "PHP ${{ steps.php.outputs.version }}"
           files: Linux.zip
           prerelease: false
-  build-windows:
-    runs-on: windows-2019
-    steps:  
-      - uses: actions/checkout@v2
-      - name: Cache Check
-        id: build-cache
-        uses: actions/cache@v2
-        with:
-          path: "./bin"
-          key: "build-generic-windows-${{ matrix.php }}-${{ hashFiles('./windows-compile-vs.bat') }}"
-      - name: Install wget
-        run: choco install wget --no-progress
-      - name: Compile
-        run: windows-compile-vs.bat
-      - run: dir
