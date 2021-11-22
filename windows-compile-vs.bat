@@ -203,10 +203,12 @@ call :get-extension-zip-from-github "recursionguard"        "%PHP_RECURSIONGUARD
 call :get-extension-zip-from-github "morton"                "%PHP_MORTON_VER%"           "pmmp"           "ext-morton"              || exit 1
 call :get-extension-zip-from-github "libdeflate"            "%PHP_LIBDEFLATE_VER%"       "pmmp"           "ext-libdeflate"          || exit 1
 call :get-extension-zip-from-github "vanillagenerator"      "%PHP_VANILLAGENERATOR_VER%" "NetherGamesMC"  "ext-vanillagenerator"    || exit 1
-call :get-extension-zip-from-github "php-meminfo"           "%PHP_MEMINFO_VER%"          "WolvesFortress" "php-meminfo"             || exit 1
+call :get-extension-zip-from-github "meminfo"               "%PHP_MEMINFO_VER%"          "WolvesFortress" "php-meminfo"             || exit 1
 
 call :pm-echo " - php-meminfo: fixing paths..."
-move php-meminfo\extension php-meminfo >>"%log_file%" 2>&1
+move meminfo\extension\*.* meminfo >>"%log_file%" 2>&1
+dir meminfo >>"%log_file%" 2>&1
+call :pm-echo dir meminfo
 
 call :pm-echo " - crypto: downloading %PHP_CRYPTO_VER%..."
 git clone https://github.com/bukka/php-crypto.git crypto >>"%log_file%" 2>&1 || exit 1
