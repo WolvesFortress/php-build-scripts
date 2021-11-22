@@ -205,6 +205,9 @@ call :get-extension-zip-from-github "libdeflate"            "%PHP_LIBDEFLATE_VER
 call :get-extension-zip-from-github "vanillagenerator"      "%PHP_VANILLAGENERATOR_VER%" "NetherGamesMC"  "ext-vanillagenerator"    || exit 1
 call :get-extension-zip-from-github "php-meminfo"           "%PHP_MEMINFO_VER%"          "WolvesFortress" "php-meminfo"             || exit 1
 
+call :pm-echo " - php-meminfo: fixing paths..."
+move php-meminfo\extension php-meminfo >>"%log_file%" 2>&1
+
 call :pm-echo " - crypto: downloading %PHP_CRYPTO_VER%..."
 git clone https://github.com/bukka/php-crypto.git crypto >>"%log_file%" 2>&1 || exit 1
 cd /D crypto
