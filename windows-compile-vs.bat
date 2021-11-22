@@ -34,6 +34,7 @@ set PHP_MORTON_VER=0.1.2
 set PHP_LIBDEFLATE_VER=be5367c81c61c612271377cdae9ffacac0f6e53a
 
 set PHP_VANILLAGENERATOR_VER=56fc48ea1367e1d08b228dfa580b513fbec8ca31
+set PHP_MEMINFO_VER=56f61817375bc3bb3f01583abb769ce1fc40d14b
 
 set script_path=%~dp0
 set log_file=%script_path%compile.log
@@ -193,15 +194,16 @@ cd /D ..
 call :pm-echo "Getting additional PHP extensions..."
 cd /D php-src\ext
 
-call :get-extension-zip-from-github "pthreads"              "%PHP_PTHREADS_VER%"              "pmmp"     "pthreads"                || exit 1
-call :get-extension-zip-from-github "yaml"                  "%PHP_YAML_VER%"                  "php"      "pecl-file_formats-yaml"  || exit 1
-call :get-extension-zip-from-github "chunkutils2"           "%PHP_CHUNKUTILS2_VER%"           "pmmp"     "ext-chunkutils2"         || exit 1
-call :get-extension-zip-from-github "igbinary"              "%PHP_IGBINARY_VER%"              "igbinary" "igbinary"                || exit 1
-call :get-extension-zip-from-github "leveldb"               "%PHP_LEVELDB_VER%"               "pmmp"     "php-leveldb"             || exit 1
-call :get-extension-zip-from-github "recursionguard"        "%PHP_RECURSIONGUARD_VER%"        "pmmp"     "ext-recursionguard"      || exit 1
-call :get-extension-zip-from-github "morton"                "%PHP_MORTON_VER%"                "pmmp"     "ext-morton"              || exit 1
-call :get-extension-zip-from-github "libdeflate"            "%PHP_LIBDEFLATE_VER%"            "pmmp"     "ext-libdeflate"          || exit 1
-call :get-extension-zip-from-github "vanillagenerator"      "%PHP_VANILLAGENERATOR_VER%" "NetherGamesMC" "ext-vanillagenerator"    || exit 1
+call :get-extension-zip-from-github "pthreads"              "%PHP_PTHREADS_VER%"         "pmmp"           "pthreads"                || exit 1
+call :get-extension-zip-from-github "yaml"                  "%PHP_YAML_VER%"             "php"            "pecl-file_formats-yaml"  || exit 1
+call :get-extension-zip-from-github "chunkutils2"           "%PHP_CHUNKUTILS2_VER%"      "pmmp"           "ext-chunkutils2"         || exit 1
+call :get-extension-zip-from-github "igbinary"              "%PHP_IGBINARY_VER%"         "igbinary"       "igbinary"                || exit 1
+call :get-extension-zip-from-github "leveldb"               "%PHP_LEVELDB_VER%"          "pmmp"           "php-leveldb"             || exit 1
+call :get-extension-zip-from-github "recursionguard"        "%PHP_RECURSIONGUARD_VER%"   "pmmp"           "ext-recursionguard"      || exit 1
+call :get-extension-zip-from-github "morton"                "%PHP_MORTON_VER%"           "pmmp"           "ext-morton"              || exit 1
+call :get-extension-zip-from-github "libdeflate"            "%PHP_LIBDEFLATE_VER%"       "pmmp"           "ext-libdeflate"          || exit 1
+call :get-extension-zip-from-github "vanillagenerator"      "%PHP_VANILLAGENERATOR_VER%" "NetherGamesMC"  "ext-vanillagenerator"    || exit 1
+call :get-extension-zip-from-github "php-meminfo"           "%PHP_MEMINFO_VER%"          "WolvesFortress" "php-meminfo"             || exit 1
 
 call :pm-echo " - crypto: downloading %PHP_CRYPTO_VER%..."
 git clone https://github.com/bukka/php-crypto.git crypto >>"%log_file%" 2>&1 || exit 1
@@ -245,6 +247,7 @@ call configure^
  --enable-opcache-jit^
  --enable-phar^
  --enable-vanillagenerator^
+ --enable-meminfo^
  --enable-recursionguard=shared^
  --enable-sockets^
  --enable-tokenizer^
@@ -313,6 +316,7 @@ call :pm-echo "Generating php.ini..."
 (echo extension=php_leveldb.dll)>>"%php_ini%"
 (echo extension=php_crypto.dll)>>"%php_ini%"
 (echo extension=php_libdeflate.dll)>>"%php_ini%
+(echo extension=php_meminfo.dll)>>"%php_ini%
 (echo igbinary.compact_strings=0)>>"%php_ini%"
 (echo zend_extension=php_opcache.dll)>>"%php_ini%"
 (echo opcache.enable=1)>>"%php_ini%"
